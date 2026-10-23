@@ -5,8 +5,8 @@ import (
 	"reflect"
 )
 
-// DisplayAnyData dispalys any data in string form
-func DisplayAnyData(
+// ConvertAnyData converts any data to string
+func ConvertAnyData(
 	baseString string,
 	data any,
 	layer int,
