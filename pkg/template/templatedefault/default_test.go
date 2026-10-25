@@ -10,7 +10,7 @@ import (
 func TestDefaultDisplayFieldFunc(t *testing.T) {
 	t.Parallel()
 	const expectedResult string = "- Data: 5\n"
-	defaultTemplate := &DefaultTemplate{}
+	defaultTemplate := NewDefaultTemplate()
 	fetchedResult := defaultTemplate.DisplayField(
 		0,
 		"Data",
@@ -54,7 +54,7 @@ func TestDefaultDisplayFieldFunc(t *testing.T) {
 // TestDefaultDisplayTitleFunc tests the default function for displaying title
 func TestDefaultDisplayTitleFunc(t *testing.T) {
 	t.Parallel()
-	defaultTemplate := &DefaultTemplate{}
+	defaultTemplate := NewDefaultTemplate()
 	const expectedResult1 string = "- abc:\n"
 	result1 := defaultTemplate.DisplayTitle(
 		0,

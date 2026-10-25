@@ -17,7 +17,7 @@ func NewDefaultTemplate() *DefaultTemplate {
 }
 
 // DisplayField defines the default function that displays a field
-func (template DefaultTemplate) DisplayField(
+func (template *DefaultTemplate) DisplayField(
 	layer int,
 	fieldName string,
 	value any,
@@ -35,7 +35,7 @@ func (template DefaultTemplate) DisplayField(
 }
 
 // DisplayTitle defines the default function that displays title of a field
-func (template DefaultTemplate) DisplayTitle(
+func (template *DefaultTemplate) DisplayTitle(
 	layer int,
 	title string,
 ) string {
@@ -51,7 +51,7 @@ func (template DefaultTemplate) DisplayTitle(
 }
 
 // DisplayTail displayes the tail of the default template
-func (template DefaultTemplate) DisplayTail(
+func (template *DefaultTemplate) DisplayTail(
 	layer int,
 ) string {
 	return ""
