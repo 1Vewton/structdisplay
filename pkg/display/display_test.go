@@ -1,8 +1,17 @@
 package display
 
 import (
+	"os"
 	"testing"
 )
+
+// TestStruct defines the data struct for testing
+type TestStruct struct {
+	Field1 string
+	field2 int
+	Field3 int
+	Field4 float64
+}
 
 // TestConverterSetting tests the display function
 func TestConverterSetting(t *testing.T) {
@@ -20,6 +29,44 @@ func TestConverterSetting(t *testing.T) {
 			"expected the recursion limit to be %d, got %d",
 			99,
 			*converter.recursionLimit,
+		)
+	}
+}
+
+// TestDefaultConvert tests the converter for default template
+func TestDefaultConvert(t *testing.T) {
+	t.Parallel()
+	const data1FilePath string = "./testdata/data1.md"
+	testData := &TestStruct{
+		Field1: "Acceed",
+		field2: 114514,
+		Field3: 114514,
+		Field4: 1.14514,
+	}
+	data1, err := os.ReadFile(
+		data1FilePath,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	stringData1 := string(data1)
+	converter := NewConverter().WithRecursionLimit(
+		99,
+	)
+	result, err := converter.ConvertAnyData(
+		"Data",
+		"",
+		testData,
+		0,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result != stringData1 {
+		t.Fatalf(
+			"expected:\n%s\ngot:\n%s\n",
+			stringData1,
+			result,
 		)
 	}
 }

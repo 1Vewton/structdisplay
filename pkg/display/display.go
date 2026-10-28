@@ -1,7 +1,6 @@
 package display
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 
@@ -49,9 +48,7 @@ func (converter *Converter[T]) ConvertAnyData(
 ) (string, error) {
 	resultString := baseString
 	if data == nil {
-		return resultString, errors.New(
-			"you cannot input a nil data",
-		)
+		return resultString, nil
 	}
 	if converter.recursionLimit != nil {
 		if layer >= *converter.recursionLimit {
@@ -64,10 +61,11 @@ func (converter *Converter[T]) ConvertAnyData(
 	// Checks if this is a data struct
 	dType := reflect.TypeOf(data)
 	dValue := reflect.ValueOf(data)
-	resultString += converter.templateUsed.DisplayTitle(
-		layer,
-		title,
-	)
+	if dType.Kind() == reflect.Pointer {
+		if dValue.IsNil() {
+			return resultString, nil
+		}
+	}
 	if dType.Kind() != reflect.Struct {
 		resultString += converter.templateUsed.DisplayField(
 			layer,
@@ -75,6 +73,10 @@ func (converter *Converter[T]) ConvertAnyData(
 			dValue,
 		)
 	} else {
+		resultString += converter.templateUsed.DisplayTitle(
+			layer,
+			title,
+		)
 		// Iterating the fields
 		numFields := dType.NumField()
 		for i := range numFields {
