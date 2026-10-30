@@ -17,14 +17,14 @@ type FetchDataResult struct {
 // It will try to find the value and kind pointed if data is a pointer.
 func FetchData(
 	data any,
-	steps int,
-	maximumSteps *int,
+	layer int,
+	limit *int,
 ) (*FetchDataResult, error) {
-	if maximumSteps != nil {
-		if steps >= *maximumSteps {
+	if limit != nil {
+		if layer >= *limit {
 			return nil, fmt.Errorf(
 				"%d reaches the recursion maximum limitation",
-				steps,
+				layer,
 			)
 		}
 	}
@@ -40,8 +40,8 @@ func FetchData(
 		if dValue.CanInterface() {
 			return FetchData(
 				dValue.Elem().Interface(),
-				steps+1,
-				maximumSteps,
+				layer+1,
+				limit,
 			)
 		}
 		return nil, fmt.Errorf(

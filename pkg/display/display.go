@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/1Vewton/structdisplay/internal/operations"
 	"github.com/1Vewton/structdisplay/pkg/template"
 	"github.com/1Vewton/structdisplay/pkg/template/templatedefault"
 )
@@ -47,82 +48,59 @@ func (converter *Converter[T]) ConvertAnyData(
 	layer int,
 ) (string, error) {
 	resultString := baseString
-	if data == nil {
-		return resultString, nil
+	fetchedData, err := operations.FetchData(
+		data,
+		layer,
+		converter.recursionLimit,
+	)
+	if err != nil {
+		return resultString, err
 	}
-	if converter.recursionLimit != nil {
-		if layer >= *converter.recursionLimit {
-			return resultString, fmt.Errorf(
-				"the recursion limit %d is reached",
-				*converter.recursionLimit,
-			)
-		}
-	}
-	// Checks if this is a data struct
-	dType := reflect.TypeOf(data)
-	dValue := reflect.ValueOf(data)
-	if dType.Kind() == reflect.Pointer {
-		if dValue.IsNil() {
-			return resultString, nil
-		}
-	}
-	if dType.Kind() != reflect.Struct {
-		resultString += converter.templateUsed.DisplayField(
-			layer,
+	if !fetchedData.Value.CanInterface() {
+		return resultString, fmt.Errorf(
+			"%s data cannot get interfaced",
 			title,
-			dValue,
 		)
-	} else {
+	}
+	if fetchedData.Type.Kind() == reflect.Struct {
 		resultString += converter.templateUsed.DisplayTitle(
 			layer,
 			title,
 		)
-		// Iterating the fields
-		numFields := dType.NumField()
-		for i := range numFields {
-			field := dType.Field(i)
-			if !field.IsExported() {
-				continue
-			}
-			fieldByName := dValue.FieldByName(
-				field.Name,
-			)
-			isValid := fieldByName.IsValid()
-			if !isValid {
-				return resultString, fmt.Errorf(
-					"%s field is not valid",
-					field.Name,
-				)
-			}
-			canInterface := fieldByName.CanInterface()
-			if !canInterface {
-				return resultString, fmt.Errorf(
-					"%s field cannot be queried",
-					field.Name,
-				)
-			}
-			if field.Type.Kind() == reflect.Struct {
-				subString, err := converter.ConvertAnyData(
-					field.Name,
-					resultString,
-					fieldByName.Interface(),
-					layer+1,
-				)
-				resultString = subString
-				if err != nil {
-					return resultString, err
-				}
-			} else {
-				resultString += converter.templateUsed.DisplayField(
-					layer,
-					field.Name,
-					fieldByName.Interface(),
-				)
-			}
+		fields, err := operations.GetFields(
+			fetchedData.Value.Interface(),
+			converter.recursionLimit,
+		)
+		if err != nil {
+			return resultString, err
 		}
+		for fieldName, field := range fields {
+			if !field.Value.CanInterface() {
+				return resultString, fmt.Errorf(
+					"%s cannot get interfaced",
+					fieldName,
+				)
+			}
+			subString, err := converter.ConvertAnyData(
+				fieldName,
+				"",
+				field.Value.Interface(),
+				layer+1,
+			)
+			if err != nil {
+				return resultString, err
+			}
+			resultString += subString
+		}
+		resultString += converter.templateUsed.DisplayTail(
+			layer,
+		)
+		return resultString, nil
 	}
-	resultString += converter.templateUsed.DisplayTail(
+	resultString += converter.templateUsed.DisplayField(
 		layer,
+		title,
+		fetchedData.Value.Interface(),
 	)
 	return resultString, nil
 }
