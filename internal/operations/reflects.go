@@ -1,6 +1,7 @@
 package operations
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 )
@@ -27,9 +28,14 @@ func FetchData(
 			)
 		}
 	}
+	isNil := data == nil
+	if isNil {
+		return &FetchDataResult{
+			IsNil: isNil,
+		}, nil
+	}
 	dType := reflect.TypeOf(data)
 	dValue := reflect.ValueOf(data)
-	isNil := data == nil
 	if dType.Kind() == reflect.Pointer {
 		if dValue.CanInterface() {
 			return FetchData(
@@ -57,4 +63,56 @@ func (result *FetchDataResult) Equals(
 	return result.IsNil == another.IsNil &&
 		result.Value.Equal(another.Value) &&
 		result.Type.Kind() == another.Type.Kind()
+}
+
+// GetFields gets the fields for a data struct.
+// Returns nil if it is not a data struct
+func GetFields(
+	data any,
+	maximumSteps *int,
+) (map[string]*FetchDataResult, error) {
+	result := map[string]*FetchDataResult{}
+	dataInfo, err := FetchData(
+		data,
+		0,
+		maximumSteps,
+	)
+	if err != nil {
+		return nil, err
+	}
+	if dataInfo.IsNil {
+		return nil, errors.New(
+			"you should not pass a nil value in",
+		)
+	}
+	if dataInfo.Type.Kind() != reflect.Struct {
+		return nil, nil
+	}
+	fieldsNum := dataInfo.Type.NumField()
+	for i := range fieldsNum {
+		field := dataInfo.Type.Field(i)
+		if !field.IsExported() {
+			continue
+		}
+		fieldByName := dataInfo.Value.FieldByName(
+			field.Name,
+		)
+		if !fieldByName.CanInterface() {
+			return nil, fmt.Errorf(
+				"data in %s field cannot be interfaced",
+				field.Name,
+			)
+		}
+		fieldData := fieldByName.Interface()
+		fieldResult, err := FetchData(
+			fieldData,
+			0,
+			maximumSteps,
+		)
+		if err != nil {
+			return nil, err
+		}
+		result[field.Name] = fieldResult
+	}
+	return result, nil
 }
