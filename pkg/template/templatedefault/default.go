@@ -22,9 +22,10 @@ func (template *DefaultTemplate) DisplayField(
 	fieldName string,
 	value any,
 ) string {
+	usedLayer := max(layer, 0)
 	resultString := strings.Repeat(
 		tab,
-		layer,
+		usedLayer,
 	)
 	resultString += fmt.Sprintf(
 		"- %s: %v \n",
@@ -39,9 +40,10 @@ func (template *DefaultTemplate) DisplayTitle(
 	layer int,
 	title string,
 ) string {
+	usedLayer := max(layer, 0)
 	resultString := strings.Repeat(
 		tab,
-		max(layer-1, 0),
+		usedLayer,
 	)
 	resultString += fmt.Sprintf(
 		"- %s: \n",

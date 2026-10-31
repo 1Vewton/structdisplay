@@ -28,16 +28,25 @@ func FetchData(
 			)
 		}
 	}
-	isNil := data == nil
-	if isNil {
-		return &FetchDataResult{
-			IsNil: isNil,
-		}, nil
-	}
 	dType := reflect.TypeOf(data)
 	dValue := reflect.ValueOf(data)
+	if data == nil {
+		return &FetchDataResult{
+			Type:  dType,
+			Value: dValue,
+			IsNil: true,
+		}, nil
+	}
 	if dType.Kind() == reflect.Pointer {
 		if dValue.CanInterface() {
+			elemedData := dValue.Elem()
+			if elemedData.IsZero() {
+				return &FetchDataResult{
+					Type:  dType,
+					Value: dValue,
+					IsNil: true,
+				}, nil
+			}
 			return FetchData(
 				dValue.Elem().Interface(),
 				layer+1,
@@ -52,7 +61,7 @@ func FetchData(
 	return &FetchDataResult{
 		Value: dValue,
 		Type:  dType,
-		IsNil: isNil,
+		IsNil: false,
 	}, nil
 }
 

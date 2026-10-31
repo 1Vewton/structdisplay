@@ -66,6 +66,9 @@ func (converter *Converter[T]) ConvertAnyData(
 	if err != nil {
 		return resultString, err
 	}
+	if fetchedData.IsNil {
+		return resultString, nil
+	}
 	if !fetchedData.Value.CanInterface() {
 		return resultString, fmt.Errorf(
 			"%s data cannot get interfaced",

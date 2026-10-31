@@ -67,7 +67,7 @@ func TestDefaultDisplayTitleFunc(t *testing.T) {
 			result1,
 		)
 	}
-	const expectedResult2 string = "    - abc: \n"
+	const expectedResult2 string = "        - abc: \n"
 	result2 := defaultTemplate.DisplayTitle(
 		2,
 		"abc",

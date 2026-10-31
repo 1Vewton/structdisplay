@@ -184,6 +184,20 @@ func TestFetchDataFromNil(t *testing.T) {
 			"the result is expected to find the data is nil",
 		)
 	}
+	var Data *int = nil
+	res2, err := FetchData(
+		&Data,
+		0,
+		nil,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !res2.IsNil {
+		t.Fatal(
+			"the pointer to nil should have isNil",
+		)
+	}
 }
 
 // TestGetFields tests the function of getting fields from a data struct
