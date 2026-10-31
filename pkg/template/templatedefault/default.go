@@ -27,7 +27,7 @@ func (template *DefaultTemplate) DisplayField(
 		layer,
 	)
 	resultString += fmt.Sprintf(
-		"- %s: %v\n",
+		"- %s: %v \n",
 		fieldName,
 		value,
 	)
@@ -44,7 +44,7 @@ func (template *DefaultTemplate) DisplayTitle(
 		max(layer-1, 0),
 	)
 	resultString += fmt.Sprintf(
-		"- %s:\n",
+		"- %s: \n",
 		title,
 	)
 	return resultString

@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/1Vewton/structdisplay/internal/operations"
+	"github.com/1Vewton/structdisplay/pkg/sequence"
 	"github.com/1Vewton/structdisplay/pkg/template"
 	"github.com/1Vewton/structdisplay/pkg/template/templatedefault"
 )
@@ -13,6 +14,7 @@ import (
 type Converter[T template.Template] struct {
 	recursionLimit *int
 	templateUsed   T
+	sequenceUsed   *sequence.FieldSequence
 }
 
 // NewConverter creates new converter
@@ -22,6 +24,14 @@ func NewConverter() *Converter[template.Template] {
 		templatedefault.NewDefaultTemplate(),
 	)
 	return result
+}
+
+// WithFieldSequence sets the field sequence for converter
+func (converter *Converter[T]) WithFieldSequence(
+	sequenceUsed *sequence.FieldSequence,
+) *Converter[T] {
+	converter.sequenceUsed = sequenceUsed
+	return converter
 }
 
 // WithTemplate defines template for converter
@@ -63,6 +73,7 @@ func (converter *Converter[T]) ConvertAnyData(
 		)
 	}
 	if fetchedData.Type.Kind() == reflect.Struct {
+		// Process data struct
 		resultString += converter.templateUsed.DisplayTitle(
 			layer,
 			title,
@@ -74,6 +85,7 @@ func (converter *Converter[T]) ConvertAnyData(
 		if err != nil {
 			return resultString, err
 		}
+		datasForAssembling := map[string]string{}
 		for fieldName, field := range fields {
 			if !field.Value.CanInterface() {
 				return resultString, fmt.Errorf(
@@ -90,7 +102,23 @@ func (converter *Converter[T]) ConvertAnyData(
 			if err != nil {
 				return resultString, err
 			}
-			resultString += subString
+			datasForAssembling[fieldName] = subString
+		}
+		if converter.sequenceUsed != nil {
+			fieldSequence := converter.sequenceUsed.GetSequence(
+				fetchedData.Type,
+			)
+			for _, field := range fieldSequence {
+				fieldString, exists := datasForAssembling[field]
+				if !exists {
+					continue
+				}
+				resultString += fieldString
+				delete(datasForAssembling, field)
+			}
+		}
+		for _, rest := range datasForAssembling {
+			resultString += rest
 		}
 		resultString += converter.templateUsed.DisplayTail(
 			layer,

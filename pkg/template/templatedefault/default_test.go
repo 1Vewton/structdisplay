@@ -9,7 +9,7 @@ import (
 // TestDefaultDisplayFieldFunc tests the default function for displaying a field
 func TestDefaultDisplayFieldFunc(t *testing.T) {
 	t.Parallel()
-	const expectedResult string = "- Data: 5\n"
+	const expectedResult string = "- Data: 5 \n"
 	defaultTemplate := NewDefaultTemplate()
 	fetchedResult := defaultTemplate.DisplayField(
 		0,
@@ -23,7 +23,7 @@ func TestDefaultDisplayFieldFunc(t *testing.T) {
 			fetchedResult,
 		)
 	}
-	const expectedResultTab1 string = "    - Test: ggds\n"
+	const expectedResultTab1 string = "    - Test: ggds \n"
 	fetchedResult = defaultTemplate.DisplayField(
 		1,
 		"Test",
@@ -36,7 +36,7 @@ func TestDefaultDisplayFieldFunc(t *testing.T) {
 			fetchedResult,
 		)
 	}
-	const expectedResultTab2 string = "        - Test: ggds\n"
+	const expectedResultTab2 string = "        - Test: ggds \n"
 	fetchedResult = defaultTemplate.DisplayField(
 		2,
 		"Test",
@@ -55,7 +55,7 @@ func TestDefaultDisplayFieldFunc(t *testing.T) {
 func TestDefaultDisplayTitleFunc(t *testing.T) {
 	t.Parallel()
 	defaultTemplate := NewDefaultTemplate()
-	const expectedResult1 string = "- abc:\n"
+	const expectedResult1 string = "- abc: \n"
 	result1 := defaultTemplate.DisplayTitle(
 		0,
 		"abc",
@@ -67,7 +67,7 @@ func TestDefaultDisplayTitleFunc(t *testing.T) {
 			result1,
 		)
 	}
-	const expectedResult2 string = "    - abc:\n"
+	const expectedResult2 string = "    - abc: \n"
 	result2 := defaultTemplate.DisplayTitle(
 		2,
 		"abc",

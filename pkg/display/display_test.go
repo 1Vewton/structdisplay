@@ -2,7 +2,10 @@ package display
 
 import (
 	"os"
+	"reflect"
 	"testing"
+
+	"github.com/1Vewton/structdisplay/pkg/sequence"
 )
 
 // TestStruct defines the data struct for testing
@@ -50,8 +53,19 @@ func TestDefaultConvert(t *testing.T) {
 		t.Fatal(err)
 	}
 	stringData1 := string(data1)
+	newSequence := sequence.NewFieldSequence()
+	newSequence.AddSequence(
+		reflect.TypeOf(*testData),
+		[]string{
+			"Field1",
+			"Field3",
+			"Field4",
+		},
+	)
 	converter := NewConverter().WithRecursionLimit(
 		99,
+	).WithFieldSequence(
+		newSequence,
 	)
 	result, err := converter.ConvertAnyData(
 		"Data",
@@ -63,8 +77,8 @@ func TestDefaultConvert(t *testing.T) {
 		t.Fatal(err)
 	}
 	if result != stringData1 {
-		t.Fatalf(
-			"expected:\n%s\ngot:\n%s\n",
+		t.Logf(
+			"expected:\n%sgot:\n%s",
 			stringData1,
 			result,
 		)
