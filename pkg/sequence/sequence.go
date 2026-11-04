@@ -23,19 +23,20 @@ func NewFieldSequence() *FieldSequence {
 func (fieldSeq *FieldSequence) AddSequenceByTypeName(
 	typeName string,
 	seq []string,
-) {
+) *FieldSequence {
 	fieldSeq.lock.Lock()
 	defer fieldSeq.lock.Unlock()
 	fieldSeq.sequences[typeName] = slices.Clone(seq)
+	return fieldSeq
 }
 
 // AddSequence adds sequence for a type
 func (fieldSeq *FieldSequence) AddSequence(
 	typeInfo reflect.Type,
 	seq []string,
-) {
+) *FieldSequence {
 	typeName := typeInfo.Name()
-	fieldSeq.AddSequenceByTypeName(
+	return fieldSeq.AddSequenceByTypeName(
 		typeName,
 		seq,
 	)

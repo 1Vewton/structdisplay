@@ -30,7 +30,7 @@ func FetchData(
 	}
 	dType := reflect.TypeOf(data)
 	dValue := reflect.ValueOf(data)
-	if data == nil {
+	if dValue.Kind() == reflect.Invalid {
 		return &FetchDataResult{
 			Type:  dType,
 			Value: dValue,
@@ -40,7 +40,7 @@ func FetchData(
 	if dType.Kind() == reflect.Pointer {
 		if dValue.CanInterface() {
 			elemedData := dValue.Elem()
-			if elemedData.IsZero() {
+			if elemedData.Kind() == reflect.Invalid {
 				return &FetchDataResult{
 					Type:  dType,
 					Value: dValue,

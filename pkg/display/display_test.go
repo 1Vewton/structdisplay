@@ -3,8 +3,10 @@ package display
 import (
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/1Vewton/structdisplay/pkg/process"
 	"github.com/1Vewton/structdisplay/pkg/sequence"
 )
 
@@ -14,6 +16,17 @@ type TestStruct struct {
 	field2 int
 	Field3 int
 	Field4 float64
+}
+
+// TestStructMid defines the test struct
+type TestStructMid struct {
+}
+
+// TestStruct2 defines the test struct
+type TestStruct2 struct {
+	Field1       string
+	Field2       *TestStruct
+	FieldSpecial *TestStructMid
 }
 
 // TestConverterSetting tests the display function
@@ -53,8 +66,7 @@ func TestDefaultConvert(t *testing.T) {
 		t.Fatal(err)
 	}
 	stringData1 := string(data1)
-	newSequence := sequence.NewFieldSequence()
-	newSequence.AddSequence(
+	newSequence := sequence.NewFieldSequence().AddSequence(
 		reflect.TypeOf(*testData),
 		[]string{
 			"Field1",
@@ -82,5 +94,46 @@ func TestDefaultConvert(t *testing.T) {
 			stringData1,
 			result,
 		)
+	}
+}
+
+// TestNestedStruct tests the display function on nested data struct
+func TestNestedStruct(t *testing.T) {
+	t.Parallel()
+	// Defines data
+	testStruct := &TestStruct2{
+		Field1: "114514",
+		Field2: &TestStruct{
+			Field1: "114514",
+			field2: 114514,
+			Field3: 1919810,
+			Field4: 3.14,
+		},
+		FieldSpecial: nil,
+	}
+	// Process nil method
+	testProcessNilMethod := func(layer int) string {
+		const tab string = "    "
+		tabs := strings.Repeat(tab, layer)
+		return tabs + "- FieldSpecial does not exists"
+	}
+	nilToolSet := process.NewNilToolset().AddProcessMethod(
+		"FieldSpecial",
+		testProcessNilMethod,
+	)
+	// Converter
+	testConverter := NewConverter().WithProcessNilToolset(
+		nilToolSet,
+	).WithRecursionLimit(
+		99,
+	)
+	_, err := testConverter.ConvertAnyData(
+		"testConvert",
+		"",
+		testStruct,
+		0,
+	)
+	if err != nil {
+		t.Fatal(err)
 	}
 }

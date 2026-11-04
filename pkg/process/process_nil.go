@@ -26,10 +26,11 @@ func NewNilToolset() *NilToolset {
 func (toolset *NilToolset) AddProcessMethod(
 	fieldName string,
 	method NilMethod,
-) {
+) *NilToolset {
 	toolset.lock.Lock()
 	defer toolset.lock.Unlock()
 	toolset.set[fieldName] = method
+	return toolset
 }
 
 // ProcessNil processes nil
