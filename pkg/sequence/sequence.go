@@ -46,6 +46,8 @@ func (fieldSeq *FieldSequence) AddSequence(
 func (fieldSeq *FieldSequence) GetSequenceByTypeName(
 	typeName string,
 ) []string {
+	fieldSeq.lock.RLock()
+	defer fieldSeq.lock.RUnlock()
 	sequenceFetched, exists := fieldSeq.sequences[typeName]
 	if !exists {
 		return nil

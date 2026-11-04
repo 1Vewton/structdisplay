@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/1Vewton/structdisplay/internal/operations"
+	"github.com/1Vewton/structdisplay/pkg/process"
 	"github.com/1Vewton/structdisplay/pkg/sequence"
 	"github.com/1Vewton/structdisplay/pkg/template"
 	"github.com/1Vewton/structdisplay/pkg/template/templatedefault"
@@ -12,9 +13,10 @@ import (
 
 // Converter defines the converter for displaying string
 type Converter[T template.Template] struct {
-	recursionLimit *int
-	templateUsed   T
-	sequenceUsed   *sequence.FieldSequence
+	recursionLimit    *int
+	templateUsed      T
+	sequenceUsed      *sequence.FieldSequence
+	processNilToolset *process.NilToolset
 }
 
 // NewConverter creates new converter
@@ -24,6 +26,14 @@ func NewConverter() *Converter[template.Template] {
 		templatedefault.NewDefaultTemplate(),
 	)
 	return result
+}
+
+// WithProcessNilToolset defines the toolset of this converter for processing nil
+func (converter *Converter[T]) WithProcessNilToolset(
+	processNilToolset *process.NilToolset,
+) *Converter[T] {
+	converter.processNilToolset = processNilToolset
+	return converter
 }
 
 // WithFieldSequence sets the field sequence for converter
@@ -67,6 +77,13 @@ func (converter *Converter[T]) ConvertAnyData(
 		return resultString, err
 	}
 	if fetchedData.IsNil {
+		nilProcessedString := converter.processNilToolset.ProcessNil(
+			title,
+			layer,
+		)
+		if nilProcessedString != nil {
+			resultString += *nilProcessedString
+		}
 		return resultString, nil
 	}
 	if !fetchedData.Value.CanInterface() {
