@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/1Vewton/structdisplay/pkg/ignore"
 	"github.com/1Vewton/structdisplay/pkg/process"
 	"github.com/1Vewton/structdisplay/pkg/sequence"
 )
@@ -27,6 +28,12 @@ type TestStruct2 struct {
 	Field1       string
 	Field2       *TestStruct
 	FieldSpecial *TestStructMid
+}
+
+// TestStructWithIgnore defines the test struct with ignore
+type TestStructWithIgnore struct {
+	FieldBBC string
+	FieldA   int
 }
 
 // TestConverterSetting tests the display function
@@ -135,5 +142,40 @@ func TestNestedStruct(t *testing.T) {
 	)
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+// TestIgnore tests the ignoring when performing display with ignore terms
+func TestIgnore(t *testing.T) {
+	t.Parallel()
+	const expectedResult string = `- testIgnoreData: 
+    - FieldA: 1 
+`
+	ignoredSliece := ignore.NewTermsIgnoredSlice()
+	ignoredSliece.AddField(
+		"FieldBBC",
+	)
+	testIgnoreData := &TestStructWithIgnore{
+		FieldBBC: "114514",
+		FieldA:   1,
+	}
+	testConverter := NewConverter().WithIgnoredTerms(
+		ignoredSliece,
+	)
+	displayedResult, err := testConverter.ConvertAnyData(
+		"testIgnoreData",
+		"",
+		testIgnoreData,
+		0,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if displayedResult != expectedResult {
+		t.Fatalf(
+			"expected:\n%s\ngot:\n%s\n",
+			expectedResult,
+			displayedResult,
+		)
 	}
 }

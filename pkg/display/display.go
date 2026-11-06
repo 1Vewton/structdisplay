@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/1Vewton/structdisplay/internal/operations"
+	"github.com/1Vewton/structdisplay/pkg/ignore"
 	"github.com/1Vewton/structdisplay/pkg/process"
 	"github.com/1Vewton/structdisplay/pkg/sequence"
 	"github.com/1Vewton/structdisplay/pkg/template"
@@ -17,6 +18,7 @@ type Converter[T template.Template] struct {
 	templateUsed      T
 	sequenceUsed      *sequence.FieldSequence
 	processNilToolset *process.NilToolset
+	ignoredTerms      ignore.TermsIgnored
 }
 
 // NewConverter creates new converter
@@ -26,6 +28,14 @@ func NewConverter() *Converter[template.Template] {
 		templatedefault.NewDefaultTemplate(),
 	)
 	return result
+}
+
+// WithIgnoredTerms adds terms ignored to the converter
+func (converter *Converter[T]) WithIgnoredTerms[tg ignore.TermsIgnored](
+	termsIgnored tg,
+) *Converter[T] {
+	converter.ignoredTerms = termsIgnored
+	return converter
 }
 
 // WithProcessNilToolset defines the toolset of this converter for processing nil
@@ -85,6 +95,20 @@ func (converter *Converter[T]) ConvertAnyData(
 			resultString += *nilProcessedString
 		}
 		return resultString, nil
+	}
+	if converter.ignoredTerms != nil {
+		isThisTypeIgnored := converter.ignoredTerms.CheckIsTypeIgnoredByType(
+			fetchedData.Type,
+		)
+		if isThisTypeIgnored {
+			return resultString, nil
+		}
+		isFieldIgnored := converter.ignoredTerms.IsFieldIgnored(
+			title,
+		)
+		if isFieldIgnored {
+			return resultString, nil
+		}
 	}
 	if !fetchedData.Value.CanInterface() {
 		return resultString, fmt.Errorf(
