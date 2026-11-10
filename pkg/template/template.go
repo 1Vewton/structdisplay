@@ -4,7 +4,7 @@ package template
 type Template interface {
 	DisplayField(
 		layer int,
-		fieldName string,
+		fieldName any,
 		value any,
 	) string
 	DisplayTitle(

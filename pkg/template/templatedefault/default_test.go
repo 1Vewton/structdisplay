@@ -10,7 +10,7 @@ import (
 func TestDefaultDisplayFieldFunc(t *testing.T) {
 	t.Parallel()
 	const expectedResult string = "- Data: 5 \n"
-	defaultTemplate := NewDefaultTemplate()
+	defaultTemplate := NewDefaultTemplate(nil)
 	fetchedResult := defaultTemplate.DisplayField(
 		0,
 		"Data",
@@ -54,7 +54,7 @@ func TestDefaultDisplayFieldFunc(t *testing.T) {
 // TestDefaultDisplayTitleFunc tests the default function for displaying title
 func TestDefaultDisplayTitleFunc(t *testing.T) {
 	t.Parallel()
-	defaultTemplate := NewDefaultTemplate()
+	defaultTemplate := NewDefaultTemplate(nil)
 	const expectedResult1 string = "- abc: \n"
 	result1 := defaultTemplate.DisplayTitle(
 		0,
@@ -84,7 +84,7 @@ func TestDefaultDisplayTitleFunc(t *testing.T) {
 // TestInterface tests whether it can adapt to the template interface
 func TestInterface(t *testing.T) {
 	t.Parallel()
-	var defaultTemplate interface{} = NewDefaultTemplate()
+	var defaultTemplate interface{} = NewDefaultTemplate(nil)
 	_, ok := defaultTemplate.(template.Template)
 	if !ok {
 		t.Error(

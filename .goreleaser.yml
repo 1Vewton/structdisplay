@@ -3,6 +3,9 @@ version: 2
 gomod:
   proxy: true
 
+builds:
+  - skip: true
+
 release:
   github:
     owner: 1Vewton

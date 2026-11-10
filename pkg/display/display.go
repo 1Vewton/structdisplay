@@ -25,7 +25,7 @@ type Converter[T template.Template] struct {
 func NewConverter() *Converter[template.Template] {
 	result := &Converter[template.Template]{}
 	result.WithTemplate(
-		templatedefault.NewDefaultTemplate(),
+		templatedefault.NewDefaultTemplate(nil),
 	)
 	return result
 }
@@ -77,6 +77,14 @@ func (converter *Converter[T]) ConvertAnyData(
 	data any,
 	layer int,
 ) (string, error) {
+	if converter.recursionLimit != nil {
+		if layer > *converter.recursionLimit {
+			return baseString, fmt.Errorf(
+				"%d reaches the recursion maximum limitation",
+				layer,
+			)
+		}
+	}
 	resultString := baseString
 	fetchedData, err := operations.FetchData(
 		data,
