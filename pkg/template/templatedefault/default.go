@@ -29,7 +29,7 @@ func (template *DefaultTemplate) DisplayField(
 	value any,
 ) string {
 	if template.recursionLimit != nil {
-		if layer > *template.recursionLimit {
+		if layer >= *template.recursionLimit {
 			return ""
 		}
 	}

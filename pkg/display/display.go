@@ -78,7 +78,7 @@ func (converter *Converter[T]) ConvertAnyData(
 	layer int,
 ) (string, error) {
 	if converter.recursionLimit != nil {
-		if layer > *converter.recursionLimit {
+		if layer >= *converter.recursionLimit {
 			return baseString, fmt.Errorf(
 				"%d reaches the recursion maximum limitation",
 				layer,
