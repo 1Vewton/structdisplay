@@ -32,8 +32,9 @@ type TestStruct2 struct {
 
 // TestStructWithIgnore defines the test struct with ignore
 type TestStructWithIgnore struct {
-	FieldBBC string
-	FieldA   int
+	FieldBBC        string
+	FieldA          int
+	FieldTestStruct *TestStruct
 }
 
 // TestConverterSetting tests the display function
@@ -151,16 +152,28 @@ func TestIgnore(t *testing.T) {
 	const expectedResult string = `- testIgnoreData: 
     - FieldA: 1 
 `
-	ignoredSliece := ignore.NewTermsIgnoredSlice()
-	ignoredSliece.AddField(
+	ignoredSlice := ignore.NewTermsIgnoredSlice()
+	ignoredSlice.AddField(
 		"FieldBBC",
 	)
-	testIgnoreData := &TestStructWithIgnore{
-		FieldBBC: "114514",
-		FieldA:   1,
+	subData := &TestStruct{
+		Field1: "114514",
+		field2: 7,
+		Field3: 1919810,
+		Field4: 3.14,
 	}
+	testIgnoreData := &TestStructWithIgnore{
+		FieldBBC:        "114514",
+		FieldA:          1,
+		FieldTestStruct: subData,
+	}
+	ignoredSlice.AddTypeByType(
+		reflect.TypeOf(
+			*subData,
+		),
+	)
 	testConverter := NewConverter().WithIgnoredTerms(
-		ignoredSliece,
+		ignoredSlice,
 	)
 	displayedResult, err := testConverter.ConvertAnyData(
 		"testIgnoreData",

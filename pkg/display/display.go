@@ -87,6 +87,9 @@ func (converter *Converter[T]) ConvertAnyData(
 		return resultString, err
 	}
 	if fetchedData.IsNil {
+		if converter.processNilToolset == nil {
+			return resultString, nil
+		}
 		nilProcessedString := converter.processNilToolset.ProcessNil(
 			title,
 			layer,
