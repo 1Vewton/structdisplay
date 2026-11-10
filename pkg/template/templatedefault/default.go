@@ -17,7 +17,9 @@ type DefaultTemplate struct {
 func NewDefaultTemplate(
 	recursionLimit *int,
 ) *DefaultTemplate {
-	return &DefaultTemplate{}
+	return &DefaultTemplate{
+		recursionLimit: recursionLimit,
+	}
 }
 
 // DisplayField defines the default function that displays a field
